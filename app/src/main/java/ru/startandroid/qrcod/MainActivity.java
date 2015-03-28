@@ -19,6 +19,7 @@ public class MainActivity extends ActionBarActivity implements QRCodeReaderView.
 
 
     private QRCodeReaderView mydecoderview;
+    private boolean isSharing = false;
 
 
     @Override
@@ -83,6 +84,7 @@ public class MainActivity extends ActionBarActivity implements QRCodeReaderView.
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
+                        isSharing = true;
                         Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
                         sharingIntent.setType("text/plain");
                         sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "QR code");
@@ -119,6 +121,31 @@ public class MainActivity extends ActionBarActivity implements QRCodeReaderView.
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (isSharing) {
+            isSharing = false;
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Продолжить?")
+                    .setCancelable(false)
+                    .setTitle("QR Code!")
+                    .setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            mydecoderview.getCameraManager().startPreview();
+                            mydecoderview.setVisibility(View.VISIBLE);
+                        }
+
+                    })
+                    .setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    });
+
+            AlertDialog alert = builder.create();
+            alert.show();
+        }
         if (mydecoderview.getVisibility() == View.VISIBLE) {
             mydecoderview.getCameraManager().startPreview();
         }
