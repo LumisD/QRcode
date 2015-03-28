@@ -2,6 +2,7 @@ package ru.startandroid.qrcod;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.PointF;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -56,7 +57,7 @@ public class MainActivity extends ActionBarActivity implements QRCodeReaderView.
     }
 
     @Override
-    public void onQRCodeRead(String s, PointF[] pointFs) {
+    public void onQRCodeRead(final String s, PointF[] pointFs) {
 
         mydecoderview.getCameraManager().stopPreview();
         mydecoderview.setVisibility(View.GONE);
@@ -77,7 +78,19 @@ public class MainActivity extends ActionBarActivity implements QRCodeReaderView.
                     public void onClick(DialogInterface dialog, int which) {
                         finish();
                     }
-                });
+                })
+                .setNeutralButton("Поделиться", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                        sharingIntent.setType("text/plain");
+                        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "QR code");
+                        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, s);
+                        startActivity(Intent.createChooser(sharingIntent, "Выберите приложение"));
+                    }
+                })
+                ;
         AlertDialog alert = builder.create();
         alert.show();
 
